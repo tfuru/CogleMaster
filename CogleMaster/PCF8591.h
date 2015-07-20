@@ -22,7 +22,7 @@ class PCF8591 {
   public:
      PCF8591();
       ~PCF8591();
-      void begin(void);
+      void begin(int sda, int scl);
       void end(void);
       byte read(const int i2cAddr,const int readADCO);
 };

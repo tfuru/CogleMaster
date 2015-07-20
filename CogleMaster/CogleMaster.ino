@@ -1,8 +1,8 @@
+#include <ArduinoJson.h>
 #include <Wire.h>
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <WiFiClient.h>
 #include "PCF8591.h"
 #include "CogleMasterAP.h"
 #include "CogleMasterSTA.h"
@@ -23,8 +23,8 @@ const int pinSclGpio2 = 2;
 
 //接続先 i2c アドレス
 const int cogleSlave0I2CAddr = (0x90 >> 1);
-//const int cogleSlave1I2CAddr = (0x90 >> 1);
-//const int cogleSlave2I2CAddr = (0x90 >> 1);
+const int cogleSlave1I2CAddr = (0x91 >> 1);
+const int cogleSlave2I2CAddr = (0x92 >> 1);
 
 //STAモード時の Wi-Fi 設定情報
 char staSsid[COGLEMASTER_EEPROM_ADDR_CONFIG_SSID_SIZE];
@@ -47,15 +47,15 @@ void setup() {
   //設定をEEPROMに記録しているので読み出し用
   cogleEeprom.begin(512);
     
-  //モード決定までWi-FiはOFF(WIFI_OFF パラメータが無いバージョンなので WIFI_STA)を設定とく
-  WiFi.mode(WIFI_STA);
+  //モード決定までWi-FiはOFF
+  WiFi.mode(WIFI_OFF);
   
   //起動モード検知のためGPIO2をINPUTに設定する
   pinMode(pinSclGpio2, INPUT);
 }
 
 void loop() {
-  //
+  //APモードへのトリガー監視
   if(isAPMode == false){
     int modePin = digitalRead(pinSclGpio2);
     if(modePin == LOW){
@@ -78,7 +78,7 @@ void loop() {
   else{
     //通常モード
     //初期設定が終わっていない場合は なにもしない
-
+    //TODO: setState で動く実装にした方が良さそう
     cogleEeprom.config_load(staSsid,staPassword,deviceKey);
     if(staSsid != 0){
       //初期設定済み
@@ -94,45 +94,12 @@ void loop() {
       else{
         //CogleSlaveの値の読み出し&送信
         staMode.send(cogleSlave0I2CAddr);
+        staMode.send(cogleSlave1I2CAddr);
+        staMode.send(cogleSlave2I2CAddr);
       }
       
     }
     
-    delay(500);    
+    delay(100);    
   }
 }
-
-/*
-//logServer IPとポート
-//const char* host = "192.168.0.3";
-//const int httpPort = 3000;
-
-//Logをサーバに送信
-void sendLog(int aioPort,int value){
-  // Use WiFiClient class to create TCP connections
-  WiFiClient client;
-  if (!client.connect(host, httpPort)) {
-    return;
-  }
-  
-  // We now create a URI for the request
-  String url = "/device/";
-          url += aioPort;
-          url += "?value=";
-          url += value;
-    
-  // This will send the request to the server
-  client.print(String("GET ")
-                + url 
-                + " HTTP/1.1\r\n" 
-                + "Host: " + host + "\r\n"
-                + "Connection: close\r\n\r\n");
-  delay(10);
-  
-  // Read all the lines of the reply from server and print them to Serial
-  while(client.available()){
-    String line = client.readStringUntil('\r');
-  }
-  
-}
-*/

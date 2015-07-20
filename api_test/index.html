@@ -30,6 +30,15 @@
 	</form>
 </div>
 <div>
+	<form method="POST" action="http://192.168.4.1/api/v1/config_save">
+		<input type="text" name="ssid"      value="DMM.make AKIBA_24">
+		<input type="text" name="password"  value="20141111">
+		<input type="text" name="deviceKey" value="C5D30688">
+		
+		<input type="submit" value="save">
+	</form>
+</div>
+<div>
 	<h2>config reset</h2>
 	<form method="POST" action="http://192.168.4.1/api/v1/config_reset">
 		<input type="submit" value="reset">

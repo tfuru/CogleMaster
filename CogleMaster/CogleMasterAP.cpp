@@ -73,12 +73,12 @@ bool CogleMasterAP::receiveRequest( void ){
   Serial.print("RequestURL: "); Serial.println(reqURL);
   
   //レスポンスを返す
-  String resp = 0;
+  String resp = "";
   
   //TODO:各URLにあったAPIを実装する
-  if (resp == 0) resp = onReqSampleApi(client,reqURL);
-  if (resp == 0) resp = onReqConfigResetApi(client,reqURL);
-  if (resp == 0) resp = onReqConfigSaveApi(client,reqURL);
+  if (resp.length() == 0) resp = onReqSampleApi(client,reqURL);
+  if (resp.length() == 0) resp = onReqConfigResetApi(client,reqURL);
+  if (resp.length() == 0) resp = onReqConfigSaveApi(client,reqURL);
   
   if (resp == 0){
    //一致するAPIが無かった場合 404 を返す
@@ -100,7 +100,7 @@ String CogleMasterAP::getRequestURL(const String request){
     //何らかの
     Serial.print("Invalid request: ");
     Serial.println(req);
-    return 0;
+    return "";
   }
   req = request.substring(addr_start + 1, addr_end);
   return req;
@@ -122,7 +122,7 @@ String CogleMasterAP::getStringPartByNr(String data, char separator, int index) 
     int stringData = 0;        //variable to count data part nr 
     String dataPart = "";      //variable to hole the return text
 
-    for(int i = 0; i<data.length()-1; i++) {    //Walk through the text one letter at a time
+    for(int i = 0; i<data.length(); i++) {    //Walk through the text one letter at a time
 
         if(data[i]==separator) {
             //Count the number of times separator character appears in the text
@@ -151,6 +151,7 @@ void CogleMasterAP::parsePostRequest(String body,String keys[],String params[],i
     for(int i=0;i<len;i++){
       params[i] = getStringPartByNr(body,'&',i);
       params[i].replace(keys[i]+"=","");
+      params[i].replace("+"," ");
       params[i].trim();
     }
     
@@ -159,7 +160,7 @@ void CogleMasterAP::parsePostRequest(String body,String keys[],String params[],i
 //サンプル APIの処理
 String CogleMasterAP::onReqSampleApi(WiFiClient client,const String path){
   if(path != "/api/v1/sample"){
-    return 0;
+    return "";
   }
   
   //設定を書き込んだ事を EEPROMに記録
@@ -180,7 +181,7 @@ String CogleMasterAP::onReqSampleApi(WiFiClient client,const String path){
 //設定値の保存 APIの処理
 String CogleMasterAP::onReqConfigSaveApi(WiFiClient client,const String path){
   if(path != API_URL_CONFIG_SAVE){
-    return 0;
+    return "";
   }
   
   //TODO: POSTデータを受け取って値を取り出す
@@ -197,7 +198,8 @@ String CogleMasterAP::onReqConfigSaveApi(WiFiClient client,const String path){
     //空行の後がbody要素
     if(line == ""){
       String body = client.readStringUntil('\r');
-      //Serial.print("body:"); Serial.println(body);
+      Serial.print("body:"); Serial.println(body);
+      
       //POSTパラメータを取り出す
       String keys[3] = {"ssid","password","deviceKey"};
       String params[3];
@@ -231,7 +233,7 @@ String CogleMasterAP::onReqConfigSaveApi(WiFiClient client,const String path){
 //設定値RESET APIの処理
 String CogleMasterAP::onReqConfigResetApi(WiFiClient client,const String path){
   if(path != API_URL_CONFIG_RESET){
-    return 0;
+    return "";
   }
   
   String resp;

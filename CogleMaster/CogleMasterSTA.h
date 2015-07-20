@@ -11,13 +11,20 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include "CogleMasterEEPROM.h"
+#include "CogleMasterConfig.h"
 #include "PCF8591.h"
 
 class CogleMasterSTA {
 
   private:
+    //EEPROMに保存んした設定情報を読み出す
+    CogleMasterEEPROM cogleEeprom;
+
     //CogleSlaveを扱う為のクラス
     PCF8591 cogleSlave;
+    
+    //サーバに保存した設定情報を読み出す
+    CogleMasterConfig cogleConfig;
   public:
     CogleMasterSTA();
     ~CogleMasterSTA();

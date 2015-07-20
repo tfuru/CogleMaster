@@ -17,8 +17,8 @@ PCF8591::~PCF8591(){
 }
 
 //i2c 初期処理
-void PCF8591::begin(void){
-  Wire.begin();
+void PCF8591::begin(int sda, int scl){
+  Wire.begin(sda,scl);
 }
 
 //終了処理
@@ -33,7 +33,7 @@ byte PCF8591::read(const int i2cAddr,const int adc){
   Wire.beginTransmission(i2cAddr);
   Wire.write(adc);
   Wire.endTransmission();
-  //delay(10);
+  delay(30);
   
   Wire.requestFrom(i2cAddr, 2);
   while(Wire.available()){
