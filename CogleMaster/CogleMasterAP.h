@@ -33,7 +33,7 @@ class CogleMasterAP {
     String getStringPartByNr(String data, char separator, int index);
     
     //http POSTリクエストのパラメータ抽出
-    //void parsePostRequest(String body,String keys[],String params[],int len);
+    void parsePostRequest(String body,String keys[],String params[],int len);
     
     //Requestが届いた時の処理
     String onReqSampleApi(WiFiClient client,const String path);
@@ -52,10 +52,7 @@ class CogleMasterAP {
     //終了処理
     void end(void);
     //リクエスト待ち等のメイン処理
-    bool receiveRequest( void );
-    
-    //http POSTリクエストのパラメータ抽出
-    void parsePostRequest(String body,String keys[],String params[],int len);    
+    bool receiveRequest( void );  
 };
 
 #endif /* CogleMasterAP_h */

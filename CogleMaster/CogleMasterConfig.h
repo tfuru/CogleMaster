@@ -31,7 +31,7 @@ class CogleMasterConfig {
     CogleDeviceIFTTT deviceIfttt[SLAVE_COUNT];
     
     //GETリクエストをしてbody部分を受信
-    void httpGet(String url,char* body);
+    void httpGet(String url,char* body,int body_size);
   public:
     CogleMasterConfig();
     ~CogleMasterConfig();

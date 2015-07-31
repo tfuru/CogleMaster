@@ -23,8 +23,8 @@ const int pinSclGpio2 = 2;
 
 //接続先 i2c アドレス
 const int cogleSlave0I2CAddr = (0x90 >> 1);
-const int cogleSlave1I2CAddr = (0x91 >> 1);
-const int cogleSlave2I2CAddr = (0x92 >> 1);
+const int cogleSlave1I2CAddr = (0x92 >> 1);
+const int cogleSlave2I2CAddr = (0x94 >> 1);
 
 //STAモード時の Wi-Fi 設定情報
 char staSsid[COGLEMASTER_EEPROM_ADDR_CONFIG_SSID_SIZE];
@@ -92,10 +92,12 @@ void loop() {
         isSTAModeInit = true;
       }
       else{
+        //Serial.println( "staMode.send" );
         //CogleSlaveの値の読み出し&送信
-        staMode.send(cogleSlave0I2CAddr);
-        staMode.send(cogleSlave1I2CAddr);
+        //staMode.send(cogleSlave0I2CAddr);
+        //staMode.send(cogleSlave1I2CAddr);
         staMode.send(cogleSlave2I2CAddr);
+        
       }
       
     }

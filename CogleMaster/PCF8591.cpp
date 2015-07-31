@@ -28,18 +28,21 @@ void PCF8591::end(void){
 
 //バイトデータ読み込み
 byte PCF8591::read(const int i2cAddr,const int adc){
-  byte result;
-  
+  byte result = 0;
+
   Wire.beginTransmission(i2cAddr);
   Wire.write(adc);
   Wire.endTransmission();
-  delay(30);
+  delay(100);
   
   Wire.requestFrom(i2cAddr, 2);
-  while(Wire.available()){
+  delay(100);
+  while(Wire.available())
+  {
     result = Wire.read();
-    result = Wire.read();
+    //Serial.print("read:");Serial.println(result,HEX);
   }
-  
+  //Serial.print("result:");Serial.println(result);
+
   return result;
 }

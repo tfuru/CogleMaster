@@ -16,7 +16,6 @@ CogleMasterSTA:: ~CogleMasterSTA(){
 void CogleMasterSTA::begin(const int sdaPin,const int sclPin,const char* ssid,const char* password){
   //ESP-01用 i2cピン設定
   Wire.setClock(10000);
-  
   //CogleSlaveの利用開始
   cogleSlave.begin(sdaPin,sclPin);
   delay(10);
@@ -27,9 +26,9 @@ void CogleMasterSTA::begin(const int sdaPin,const int sclPin,const char* ssid,co
     delay(500);
   }
 
-  Serial.print("localIP:"); Serial.println(WiFi.localIP());
-  //TODO:リフレクタ サーバへ登録する
-
+  //IFTTT処理をするクラスを初期化
+  ifttt.begin();
+  
   //設定をEEPROMに記録しているので読み出し用
   cogleEeprom.begin(512);
   
@@ -46,15 +45,17 @@ void CogleMasterSTA::begin(const int sdaPin,const int sclPin,const char* ssid,co
 
 //終了処理
 void CogleMasterSTA::end(void){
-
+  cogleConfig.end();
+  ifttt.end();
 }
 
 //センサー値の送信
 void CogleMasterSTA::send(const int cogleSlaveAddr){
   //サーバに保存さていてロード済みの IFTTT設定を読み出す
+  
   String slaveAddrHex = "0x"+String((cogleSlaveAddr<<1),HEX);
-  CogleDeviceIFTTT ifttt = cogleConfig.getDeviceIFTTT( slaveAddrHex );
-  if(ifttt.deviceKey.length() == 0){
+  CogleDeviceIFTTT deviceIfttt = cogleConfig.getDeviceIFTTT( slaveAddrHex );
+  if(deviceIfttt.deviceKey.length() == 0){
     //IFTTT設定がない場合は 以下の処理はしない
     return;
   }
@@ -66,6 +67,7 @@ void CogleMasterSTA::send(const int cogleSlaveAddr){
   byte a1 = cogleSlave.read(cogleSlaveAddr,PCF8591_ADC1);
   byte a2 = cogleSlave.read(cogleSlaveAddr,PCF8591_ADC2);
   byte a3 = cogleSlave.read(cogleSlaveAddr,PCF8591_ADC3);
+  
 
   Serial.print( "cogleSlaveAddr:" ); Serial.println( slaveAddrHex );
   Serial.print( " a0:" ); Serial.println( a0 );
@@ -74,5 +76,12 @@ void CogleMasterSTA::send(const int cogleSlaveAddr){
   Serial.print( " a3:" ); Serial.println( a3 );
   Serial.println( "" );
   
-  //TODO: サーバにデバイス識別キーとcogleSlaveAddr と一緒に送信
+  //IFTTT actionを実行する
+  byte aioArry[4];
+  aioArry[0] = a0;
+  aioArry[1] = a1;
+  aioArry[2] = a2;
+  aioArry[3] = a3;
+  
+  ifttt.action(&deviceIfttt,aioArry); 
 }

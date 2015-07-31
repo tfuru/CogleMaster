@@ -12,6 +12,7 @@
 #include <WiFiClient.h>
 #include "CogleMasterEEPROM.h"
 #include "CogleMasterConfig.h"
+#include "CogleMasterIFTTT.h"
 #include "PCF8591.h"
 
 class CogleMasterSTA {
@@ -25,6 +26,9 @@ class CogleMasterSTA {
     
     //サーバに保存した設定情報を読み出す
     CogleMasterConfig cogleConfig;
+    
+    //IFTTT関連の処理を行うクラス
+    CogleMasterIFTTT ifttt;
   public:
     CogleMasterSTA();
     ~CogleMasterSTA();

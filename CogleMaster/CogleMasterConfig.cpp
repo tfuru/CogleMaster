@@ -6,8 +6,9 @@
 
 //設定保存サーバの設置先
 //TODO:本来は外部のドメイン持ちのサーバ
-#define COFIG_SERVER_API_HOST "192.168.0.3"
-#define COFIG_SERVER_API_PORT 3000
+#define COFIG_SERVER_API_HOST "192.168.1.178"
+//#define COFIG_SERVER_API_HOST "nodejs.moe.hm"
+#define COFIG_SERVER_API_PORT 3030
 
 //IFTTT設定 情報
 #define COFIG_SERVER_API_DEVICE_IFTTT "/device_ifttt"
@@ -39,18 +40,28 @@ void CogleMasterConfig::end(void){
 
 //設定を設定サーバーから読み出す
 void CogleMasterConfig::loadDeviceIFTTT(void){
-  char body[512];
+
   String url = String(COFIG_SERVER_API_DEVICE_IFTTT)
                +"?deviceKey="
                +String(deviceKey)
-               +"&_order=DESC";
+               +"&_sort=id"
+               +"&_order=DESC"
+               +"&_end=3";
                
-  httpGet(url, body);
+  //Serial.print("url:");Serial.println(url);
   
+  char body[1024];
+  httpGet(url, body, 1024);
+
+  //Serial.println("body:");Serial.println(body);
+  Serial.println("body size:");Serial.println( String(body).length() );
+    
   //TODO:JSONでパースして内容を取得
-  StaticJsonBuffer<512> jsonBuffer;
+  StaticJsonBuffer<1024> jsonBuffer;
   
   JsonArray &array = jsonBuffer.parseArray(body);
+  Serial.print("json size:");Serial.println(array.size());
+  
   for(int i=0;i<array.size();i++){
     //Slaveは3個まで
     if(i > SLAVE_COUNT) break;
@@ -61,12 +72,13 @@ void CogleMasterConfig::loadDeviceIFTTT(void){
     deviceIfttt[i].secretKey     = iftttObj["secretKey"];
     deviceIfttt[i].event         = iftttObj["event"];
     deviceIfttt[i].actionType    = iftttObj["actionType"];
-    
+
+    //Serial.print("deviceSlaveId:"); Serial.println( deviceIfttt[i].deviceSlaveId );
   }
 }
 
 //GETリクエストをしてbody部分を受信
-void CogleMasterConfig::httpGet(String url,char* body){
+void CogleMasterConfig::httpGet(String url,char* body,int body_size){
   client.print(String("GET ")
                 + url
                 + " HTTP/1.1\r\n" 
@@ -85,7 +97,7 @@ void CogleMasterConfig::httpGet(String url,char* body){
           resp += client.readStringUntil('\r');
         }
         resp.trim();
-        resp.toCharArray(body,512);
+        resp.toCharArray(body,body_size);
     }
   }      
 }
